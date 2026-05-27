@@ -1,13 +1,13 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="2026年5月 Honda 銷售獎金試算",
+    page_title="2026年5月 Honda 銷售條件試算",
     page_icon="🚗",
     layout="centered"
 )
 
 st.title("🚗 2026年5月 Honda 銷售獎金試算")
-st.caption("內促 ＋ SP銷售支援金 ＋ DM銷售顧問獎勵 ＋ 備註1車險獎勵　｜　領牌期間 2026/05/01–05/31")
+st.caption("內促 ＋ SP銷售支援金 ＋ HTW銷售顧問獎勵 ＋ 備註1車險獎勵　｜　領牌期間 2026/05/01–05/31")
 
 st.divider()
 
@@ -21,14 +21,14 @@ with col1:
         horizontal=True
     )
     hrv_option = st.radio(
-        "③ 本月有無販售 HR-V（DM）",
+        "③ 本月有無販售 HR-V（HTW）",
         options=["有 HR-V", "無 HR-V"],
         horizontal=True
     )
 
 with col2:
     total_sales = st.radio(
-        "② 本月全車系總銷售台數（DM）",
+        "② 本月全車系總銷售台數（HTW）",
         options=["1台", "2台", "3台", "4台以上"],
         horizontal=True,
         index=3
@@ -102,7 +102,7 @@ for car in car_data:
         "車型": car["model"],
         "內促": f"${neicu:,}",
         "SP最高現金": sp_display,
-        "DM": f"${dm:,}",
+        "HTW": f"${dm:,}",
         "備註1": f"+${note1:,}",
         "每台合計（最高）": f"${total:,}",
     })
