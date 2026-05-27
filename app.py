@@ -6,7 +6,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🚗 2026年5月 Honda 銷售獎金試算")
+st.title("🚗 2026年5月 Honda 銷售條件試算")
 st.caption("內促 ＋ SP銷售支援金 ＋ HTW銷售顧問獎勵 ＋ 備註1車險獎勵　｜　領牌期間 2026/05/01–05/31")
 
 st.divider()
