@@ -97,13 +97,13 @@ toggle_col1, toggle_col2 = st.columns(2)
 with toggle_col1:
     note2_on = st.toggle(
         "⑤ 備註2：本月現訂交 2 台 CR-V",
-        value=False,
+        value=True,
         help="HR-V 內促改以 3.5% 牌價（無條件刪去到百位數）＋ 備註1 計算"
     )
 with toggle_col2:
     note3_on = st.toggle(
         "⑥ 備註3：本月現訂交 4 台以上",
-        value=False,
+        value=True,
         help="CR-V e:HEV S 每台額外 +10,000 元"
     )
 
