@@ -159,9 +159,10 @@ car_data = [
     {"section": "HR-V",  "model": "e:HEV P",         "nL": 25000, "nH": 28000, "sp": 19000, "sp_note": "G案",      "no_htw": False, "hrv": True,  "crv": False, "crv_p": False},
     {"section": "FIT",   "model": "Home",            "nL": 39000, "nH": 39000, "sp": 9000,  "sp_note": "D案",      "no_htw": False, "hrv": False, "crv": False, "crv_p": False},
     {"section": "FIT",   "model": "e:HEV",           "nL": 43000, "nH": 43000, "sp": 19000, "sp_note": "D案",      "no_htw": False, "hrv": False, "crv": False, "crv_p": False},
-    {"section": "CR-V",  "model": "e:HEV S",         "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固", "no_htw": True,  "hrv": False, "crv": True,  "crv_p": False},
-    {"section": "CR-V",  "model": "VTi-S / S",       "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固", "no_htw": True,  "hrv": False, "crv": False, "crv_p": False},
-    {"section": "CR-V",  "model": "e:HEV P ⚠️限庫存", "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固", "no_htw": True,  "hrv": False, "crv": True,  "crv_p": True},
+    {"section": "CR-V",  "model": "e:HEV S",              "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固（無現金）",      "no_htw": True,  "hrv": False, "crv": True,  "crv_p": False},
+    {"section": "CR-V",  "model": "VTi-S / S",            "nL": 12000, "nH": 15000, "sp": -3000, "sp_note": "A案DLR負擔-3,000",       "no_htw": True,  "hrv": False, "crv": False, "crv_p": False},
+    {"section": "CR-V",  "model": "e:HEV Prestige",       "nL": 12000, "nH": 15000, "sp": -3000, "sp_note": "A案DLR負擔-3,000",       "no_htw": True,  "hrv": False, "crv": False, "crv_p": False},
+    {"section": "CR-V",  "model": "e:HEV P ⚠️限庫存",     "nL": 12000, "nH": 15000, "sp": -3000, "sp_note": "A案DLR負擔-3,000",       "no_htw": True,  "hrv": False, "crv": True,  "crv_p": True},
 ]
 
 totals, rows = [], []
@@ -177,7 +178,7 @@ for car in car_data:
     total      = neicu_base + car["sp"] + htw_val + note1 + bonus_val
     totals.append(total)
 
-    sp_display    = f"${car['sp']:,}（{car['sp_note']}）" if car["sp"] > 0 else f"$0（{car['sp_note']}）"
+    sp_display    = f"${car['sp']:,}（{car['sp_note']}）" if car["sp"] > 0 else (f"-$3,000（{car['sp_note']}）" if car["sp"] < 0 else f"$0（{car['sp_note']}）")
     htw_display   = "—（不計）" if car["no_htw"] else f"${htw_val:,}"
     bonus_display = f"+${bonus_val:,}" if bonus_val > 0 else "—"
 
