@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
-import math
 
 st.set_page_config(
-    page_title="2026年7月 Honda 銷售條件試算",
+    page_title="2026年8月 Honda 銷售條件試算",
     page_icon="🚗",
     layout="centered"
 )
@@ -42,7 +41,7 @@ st.markdown("""
     padding-left: 10px;
     border-left: 3px solid #cc0000;
 }
-.note2-box {
+.warn-box {
     background: #fff8e1;
     border: 1px solid #ffcc02;
     border-radius: 10px;
@@ -51,173 +50,157 @@ st.markdown("""
     font-size: 13px;
     color: #7a5400;
 }
+.danger-box {
+    background: #fff0f0;
+    border: 1px solid #ffb3b3;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 8px 0 4px 0;
+    font-size: 13px;
+    color: #990000;
+}
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 1.5rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── 頂部標題 ─────────────────────────────────────────────
+# ── 頂部標題
 st.markdown("""
 <div class="honda-header">
-  <h1>🚗 2026年7月 Honda 銷售條件試算</h1>
-  <p>內促 ＋ SP銷售支援金 ＋ HTW銷售顧問獎勵 ＋ 備註1車險獎勵　｜　領牌期間 2026/07/01–07/31</p>
+  <h1>🚗 2026年8月 Honda 銷售條件試算</h1>
+  <p>內促 ＋ SP銷售支援金 ＋ HTW銷售顧問獎勵（103期）＋ 備註1車險獎勵　｜　領牌期間 2026/08/01–08/31</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ── 篩選器 ───────────────────────────────────────────────
+# ── 篩選器
 col1, col2 = st.columns(2)
 
 with col1:
     tier = st.radio(
         "① 各車型銷售台數（內促門檻）",
-        ["1～3 台", "4 台以上"],
+        ["1～2 台", "3 台以上"],
         horizontal=True,
         index=1
     )
-    hrv_option = st.radio(
-        "③ 本月有無販售 HR-V（HTW）",
-        ["有 HR-V", "無 HR-V"],
+    period = st.radio(
+        "② 領牌時段（HTW 103期）",
+        ["8/3～8/14", "8/17～8/31"],
         horizontal=True
     )
 
 with col2:
     total_sales = st.radio(
-        "② 本月全車系總銷售台數（HTW，不含CR-V）",
-        ["1台", "2台", "3台", "4台以上"],
+        "③ TTL領牌台數（HTW，不含PRELUDE）",
+        ["1台", "2台", "3台以上"],
         horizontal=True,
-        index=3
+        index=2
     )
     note1_option = st.radio(
         "④ 上月首年車體續保率（備註1）",
         ["60% 以上 → +7,000", "低於 60% → +3,000", "無母數（一年以下）→ +5,000", "無母數（一年以上）→ +3,000"]
     )
 
-# ── 備註2 & 備註3 ─────────────────────────────────────────
-toggle_col1, toggle_col2 = st.columns(2)
-with toggle_col1:
-    note2_on = st.toggle(
-        "⑤ 備註2：本月現訂交 2 台 CR-V",
-        value=True,
-        help="HR-V 內促改以 3.5% 牌價（無條件刪去到百位數）＋ 備註1 計算"
-    )
-with toggle_col2:
-    note3_on = st.toggle(
-        "⑥ 備註3：本月現訂交 4 台以上",
-        value=True,
-        help="CR-V e:HEV S 每台額外 +10,000 元"
-    )
+# ── 備註等級
+note_level = st.radio(
+    "⑤ 備註等級（8/14前現訂交達成台數）",
+    ["無", "備2：達2台（HR-V +2k｜CR-V e:HEV +3k）", "備3：達3台（HR-V +3k｜CR-V e:HEV +6k）",
+     "備4：達4台（HR-V +3k｜CR-V e:HEV +10k）", "備5：達5台（HR-V +3k｜CR-V e:HEV +10k）"],
+    horizontal=False
+)
 
-if note2_on:
-    st.markdown('<div class="note2-box">⚠️ 備註2 啟動：HR-V 內促將改為 <strong>3.5% × 牌價（無條件刪去到百位數）＋ 備註1</strong>，請輸入各 HR-V 車型當月成交牌價（新台幣）</div>', unsafe_allow_html=True)
-    pc1, pc2, pc3 = st.columns(3)
-    with pc1:
-        price_s     = st.number_input("HR-V S 牌價", min_value=0, value=899000, step=1000, format="%d")
-    with pc2:
-        price_hev_s = st.number_input("HR-V e:HEV S 牌價", min_value=0, value=1009000, step=1000, format="%d")
-    with pc3:
-        price_hev_p = st.number_input("HR-V e:HEV P 牌價", min_value=0, value=1069000, step=1000, format="%d")
-else:
-    price_s = price_hev_s = price_hev_p = 0
+# ── 警告訊息
+if period == "8/17～8/31":
+    st.markdown('<div class="danger-box">⚠️ 8/17～8/31 領牌期間 HTW 無獎勵金（103期規定）</div>', unsafe_allow_html=True)
 
-# ── 計算邏輯 ─────────────────────────────────────────────
-htw_table = {
-    "有 HR-V":  {"1台":5000,"2台":6000,"3台":7000,"4台以上":8000},
-    "無 HR-V":  {"1台":3000,"2台":4000,"3台":5000,"4台以上":6000},
+st.markdown('<div class="warn-box">⚠️ CR-V e:HEV P 限8月前庫存，需8/31前領牌</div>', unsafe_allow_html=True)
+
+# ── 計算邏輯
+HTW_TABLE = {
+    "8/3～8/14":  {"1台": 4000, "2台": 5000, "3台以上": 6000},
+    "8/17～8/31": {"1台": 0,    "2台": 0,    "3台以上": 0},
 }
-htw = htw_table[hrv_option][total_sales]
+htw = HTW_TABLE[period][total_sales]
 
 note1_map = {
-    "60% 以上 → +7,000":        7000,
-    "低於 60% → +3,000":        3000,
+    "60% 以上 → +7,000":         7000,
+    "低於 60% → +3,000":         3000,
     "無母數（一年以下）→ +5,000": 5000,
     "無母數（一年以上）→ +3,000": 3000,
 }
 note1 = note1_map[note1_option]
-is_high = (tier == "4 台以上")
+is_high = (tier == "3 台以上")
 
-def floor100(val):
-    """無條件刪去到百位數"""
-    return math.floor(val / 100) * 100
+HRV_BONUS = {"無": 0, "備2：達2台（HR-V +2k｜CR-V e:HEV +3k）": 2000,
+             "備3：達3台（HR-V +3k｜CR-V e:HEV +6k）": 3000,
+             "備4：達4台（HR-V +3k｜CR-V e:HEV +10k）": 3000,
+             "備5：達5台（HR-V +3k｜CR-V e:HEV +10k）": 3000}
+CRV_BONUS = {"無": 0, "備2：達2台（HR-V +2k｜CR-V e:HEV +3k）": 3000,
+             "備3：達3台（HR-V +3k｜CR-V e:HEV +6k）": 6000,
+             "備4：達4台（HR-V +3k｜CR-V e:HEV +10k）": 10000,
+             "備5：達5台（HR-V +3k｜CR-V e:HEV +10k）": 10000}
 
-# HR-V 備註2 內促含備注1合計
-hrv_note2_amounts = {
-    "S":       (floor100(price_s     * 0.035) + note1) if note2_on else None,
-    "e:HEV S": (floor100(price_hev_s * 0.035) + note1) if note2_on else None,
-    "e:HEV P": (floor100(price_hev_p * 0.035) + note1) if note2_on else None,
-}
+hrv_bonus = HRV_BONUS[note_level]
+crv_bonus = CRV_BONUS[note_level]
 
-# car_data：
-#   no_htw=True  → 不計入HTW台數，該車型不發HTW獎勵（CR-V）
-#   hrv=True     → 備注2時適用3.5%計算
-#   note3        → 備注3達標時額外加給金額（CR-V e:HEV S = 10,000）
+# car_data: no_htw=True → CR-V不計HTW；hrv=True → 適用HR-V備註加成；crv=True → 適用CR-V備註加成；crv_p=True → 限庫存標示
 car_data = [
-    {"section":"CIVIC", "model":"e:HEV 26'式樣",    "nL":31000,"nH":39000,"sp":0,    "sp_note":"無現金",           "no_htw":False,"hrv":False,"note3":0},
-    {"section":"HR-V",  "model":"S",                "nL":18000,"nH":21000,"sp":16000,"sp_note":"E案",             "no_htw":False,"hrv":True, "note3":0},
-    {"section":"HR-V",  "model":"e:HEV S",          "nL":21000,"nH":24000,"sp":21000,"sp_note":"E案",             "no_htw":False,"hrv":True, "note3":0},
-    {"section":"HR-V",  "model":"e:HEV P",          "nL":23000,"nH":26000,"sp":21000,"sp_note":"E案",             "no_htw":False,"hrv":True, "note3":0},
-    {"section":"FIT",   "model":"Home",              "nL":39000,"nH":39000,"sp":11000,"sp_note":"D案",             "no_htw":False,"hrv":False,"note3":0},
-    {"section":"FIT",   "model":"e:HEV",             "nL":43000,"nH":43000,"sp":21000,"sp_note":"D案",             "no_htw":False,"hrv":False,"note3":0},
-    {"section":"CR-V",  "model":"e:HEV S",          "nL":12000,"nH":15000,"sp":0,    "sp_note":"延長保固（無現金）","no_htw":True, "hrv":False,"note3":10000},
-    {"section":"CR-V",  "model":"VTi-S / S / e:HEV P","nL":12000,"nH":15000,"sp":0, "sp_note":"延長保固（無現金）","no_htw":True, "hrv":False,"note3":0},
+    {"section": "CIVIC", "model": "e:HEV 26'式樣",   "nL": 31000, "nH": 39000, "sp": 0,     "sp_note": "無現金",    "no_htw": False, "hrv": False, "crv": False, "crv_p": False},
+    {"section": "HR-V",  "model": "S",               "nL": 19000, "nH": 22000, "sp": 14000, "sp_note": "G案",      "no_htw": False, "hrv": True,  "crv": False, "crv_p": False},
+    {"section": "HR-V",  "model": "e:HEV S",         "nL": 23000, "nH": 26000, "sp": 19000, "sp_note": "G案",      "no_htw": False, "hrv": True,  "crv": False, "crv_p": False},
+    {"section": "HR-V",  "model": "e:HEV P",         "nL": 25000, "nH": 28000, "sp": 19000, "sp_note": "G案",      "no_htw": False, "hrv": True,  "crv": False, "crv_p": False},
+    {"section": "FIT",   "model": "Home",            "nL": 39000, "nH": 39000, "sp": 9000,  "sp_note": "D案",      "no_htw": False, "hrv": False, "crv": False, "crv_p": False},
+    {"section": "FIT",   "model": "e:HEV",           "nL": 43000, "nH": 43000, "sp": 19000, "sp_note": "D案",      "no_htw": False, "hrv": False, "crv": False, "crv_p": False},
+    {"section": "CR-V",  "model": "e:HEV S",         "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固", "no_htw": True,  "hrv": False, "crv": True,  "crv_p": False},
+    {"section": "CR-V",  "model": "VTi-S / S",       "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固", "no_htw": True,  "hrv": False, "crv": False, "crv_p": False},
+    {"section": "CR-V",  "model": "e:HEV P ⚠️限庫存", "nL": 12000, "nH": 15000, "sp": 0,     "sp_note": "延長保固", "no_htw": True,  "hrv": False, "crv": True,  "crv_p": True},
 ]
 
 totals, rows = [], []
+show_bonus = note_level != "無"
+
 for car in car_data:
     neicu_base = car["nH"] if is_high else car["nL"]
-    sp         = car["sp"]
     htw_val    = 0 if car["no_htw"] else htw
-    n3_val     = car["note3"] if note3_on else 0
-
-    is_hrv       = car.get("hrv", False)
-    note2_amount = hrv_note2_amounts.get(car["model"]) if is_hrv else None
-
-    if note2_on and is_hrv and note2_amount is not None:
-        # 備注2：HR-V 內促已含備注1，不再另加
-        note1_val   = 0
-        neicu_label = f"${note2_amount:,}（3.5%+備1）"
-        note1_label = "（含於內促）"
-        total       = note2_amount + sp + htw_val + n3_val
-    else:
-        note1_val   = note1
-        neicu_label = f"${neicu_base:,}"
-        note1_label = f"+${note1:,}"
-        total       = neicu_base + sp + htw_val + note1 + n3_val
-
+    hb_val     = hrv_bonus if car["hrv"] else 0
+    cb_val     = crv_bonus if car["crv"] else 0
+    bonus_val  = hb_val + cb_val
+    total      = neicu_base + car["sp"] + htw_val + note1 + bonus_val
     totals.append(total)
 
-    sp_display  = f"${sp:,}（{car['sp_note']}）" if sp > 0 else f"$0（{car['sp_note']}）"
-    htw_display = "—（不計）" if car["no_htw"] else f"${htw_val:,}"
-    n3_display  = f"+${n3_val:,}" if note3_on and n3_val > 0 else ("—" if note3_on else "")
+    sp_display    = f"${car['sp']:,}（{car['sp_note']}）" if car["sp"] > 0 else f"$0（{car['sp_note']}）"
+    htw_display   = "—（不計）" if car["no_htw"] else f"${htw_val:,}"
+    bonus_display = f"+${bonus_val:,}" if bonus_val > 0 else "—"
 
     row_dict = {
         "車系":            car["section"],
         "車型":            car["model"],
-        "內促":            neicu_label,
+        "內促":            f"${neicu_base:,}",
         "SP最高現金":      sp_display,
         "HTW獎勵":         htw_display,
-        "備註1":           note1_label,
+        "備註1":           f"+${note1:,}",
         "每台合計（最高）": f"${total:,}",
         "_total":          total,
     }
-    if note3_on:
-        row_dict["備註3"] = n3_display
+    if show_bonus:
+        row_dict["備註加成"] = bonus_display
     rows.append(row_dict)
 
 max_total = max(totals)
 max_car   = car_data[totals.index(max_total)]
 
-# ── 指標卡片 ─────────────────────────────────────────────
+# ── 指標卡片
+htw_sub = "8/3~8/14" if period == "8/3～8/14" else "8/17後無獎勵"
 st.markdown(f"""
 <div class="metric-row">
   <div class="metric-card">
     <div class="m-label">HTW 每台單獎</div>
     <div class="m-value">${htw:,}</div>
-    <div class="m-sub">{total_sales} × {hrv_option}</div>
+    <div class="m-sub">{htw_sub} × {total_sales}</div>
   </div>
   <div class="metric-card">
     <div class="m-label">備註1 每台加給</div>
     <div class="m-value">+${note1:,}</div>
-    <div class="m-sub">{'60%以上' if note1==7000 else '低於60%' if note1==3000 else '無母數一年以下' if '一年以下' in note1_option else '無母數一年以上'}</div>
+    <div class="m-sub">{'60%以上' if note1==7000 else '低於60%' if note1==3000 and '低於' in note1_option else '無母數一年以下' if '一年以下' in note1_option else '無母數一年以上'}</div>
   </div>
   <div class="metric-card best">
     <div class="m-label">🏆 本月最高獎金車型</div>
@@ -227,14 +210,19 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── 明細表格 ─────────────────────────────────────────────
+# ── 明細表格
 st.markdown('<div class="section-label">各車型每台獎金明細</div>', unsafe_allow_html=True)
 
-df = pd.DataFrame(rows).drop(columns=["_total"])
+col_order = ["車系", "車型", "內促", "SP最高現金", "HTW獎勵", "備註1"]
+if show_bonus:
+    col_order.append("備註加成")
+col_order.append("每台合計（最高）")
+
+df = pd.DataFrame(rows)[col_order]
 
 def style_table(df_in):
     def row_style(row):
-        total_str = row["每台合計（最高）"].replace("$","").replace(",","")
+        total_str = row["每台合計（最高）"].replace("$", "").replace(",", "")
         if int(total_str) == max_total:
             return ["background-color:#fff0f0; font-weight:bold; color:#cc0000"] * len(row)
         return [""] * len(row)
@@ -244,47 +232,35 @@ st.dataframe(
     style_table(df),
     use_container_width=True,
     hide_index=True,
-    height=310
+    height=330
 )
 
-# ── 計算式展開 ────────────────────────────────────────────
+# ── 計算式展開
 with st.expander("📋 查看各車型詳細計算式"):
     for car, total in zip(car_data, totals):
         neicu_base = car["nH"] if is_high else car["nL"]
         htw_val    = 0 if car["no_htw"] else htw
         htw_str    = "HTW不計" if car["no_htw"] else f"HTW ${htw_val:,}"
-        n3_val     = car["note3"] if note3_on else 0
-        color      = "#cc0000" if total == max_total else "#333"
-        bold       = "700" if total == max_total else "400"
-
-        is_hrv       = car.get("hrv", False)
-        note2_amount = hrv_note2_amounts.get(car["model"]) if is_hrv else None
-
-        if note2_on and is_hrv and note2_amount is not None:
-            formula = (
-                f"內促(3.5%+備1) ${note2_amount:,} "
-                f"[牌價×3.5%↓百位 ＋ 備1 ${note1:,}] "
-                f"＋ SP ${car['sp']:,} ＋ {htw_str}"
-                + (f" ＋ 備3 ${n3_val:,}" if n3_val > 0 else "")
-            )
-        else:
-            formula = (
-                f"內促 ${neicu_base:,} ＋ SP ${car['sp']:,} ＋ {htw_str} ＋ 備註1 ${note1:,}"
-                + (f" ＋ 備3 ${n3_val:,}" if n3_val > 0 else "")
-            )
-
+        hb_val     = hrv_bonus if car["hrv"] else 0
+        cb_val     = crv_bonus if car["crv"] else 0
+        bonus_val  = hb_val + cb_val
+        color = "#cc0000" if total == max_total else "#333"
+        bold  = "700" if total == max_total else "400"
+        bonus_str = f" ＋ 備註加成 ${bonus_val:,}" if bonus_val > 0 else ""
+        formula = (
+            f"內促 ${neicu_base:,} ＋ SP ${car['sp']:,} ＋ {htw_str} ＋ 備1 ${note1:,}{bonus_str}"
+        )
         st.markdown(
             f"<span style='color:{color};font-weight:{bold}'>"
-            f"**{car['section']} {car['model']}**　"
-            f"{formula} ＝ **${total:,}**"
+            f"**{car['section']} {car['model']}**　{formula} ＝ **${total:,}**"
             f"</span>",
             unsafe_allow_html=True
         )
 
 st.markdown("---")
-st.caption("※ SP取各方案最高現金選項（E案/D案）。CIVIC SP本月無現金。CR-V SP為延長保固（無現金）。")
-st.caption("※ CR-V 不計入HTW銷售台數，CR-V單台不發放HTW獎勵。")
-st.caption("※ 備註1為新車投保乙式＋代步金險之獎勵，每台適用（取2026年6月成績）。")
-st.caption("※ 備註2：本月現訂交2台CR-V達成，HR-V 內促改以 3.5% 牌價（無條件刪去到百位數）＋ 備註1 計算。")
-st.caption("※ 備註3：本月現訂交4台(含)以上達成，CR-V e:HEV S 每台額外 +10,000 元。")
+st.caption("※ SP取各方案最高現金選項（G案最高：HR-V S=$14k，HR-V e:HEV=$19k，FIT Home=$9k，FIT e:HEV=$19k）。")
+st.caption("※ CIVIC SP本月無現金。CR-V SP為延長保固（無現金）。")
+st.caption("※ CR-V 不計入TTL台數，CR-V單台不發放HTW獎勵。PRELUDE不計入TTL台數。")
+st.caption("※ 備2～5加成疊加於基礎內促之上；備4與備5 CR-V e:HEV加成相同（+10k）。")
+st.caption("※ CR-V e:HEV P 限8月前庫存，需8/31前領牌。")
 st.caption("※ 本試算表僅供參考，實際獎金依 Honda Taiwan 官方公告為準。")
