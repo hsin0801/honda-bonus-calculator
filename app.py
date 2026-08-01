@@ -78,14 +78,15 @@ col1, col2 = st.columns(2)
 with col1:
     tier = st.radio(
         "① 各車型銷售台數（內促門檻）",
-        ["1～2 台", "3 台以上"],
+        ["1～2 台", "3 台以上", "5 台以上"],
         horizontal=True,
-        index=1
+        index=2
     )
     period = st.radio(
         "② 領牌時段（HTW 103期）",
         ["8/3～8/14", "8/17～8/31"],
-        horizontal=True
+        horizontal=True,
+        index=0
     )
 
 with col2:
@@ -97,15 +98,17 @@ with col2:
     )
     note1_option = st.radio(
         "④ 上月首年車體續保率（備註1）",
-        ["60% 以上 → +7,000", "低於 60% → +3,000", "無母數（一年以下）→ +5,000", "無母數（一年以上）→ +3,000"]
+        ["60% 以上 → +7,000", "低於 60% → +3,000", "無母數（一年以下）→ +5,000", "無母數（一年以上）→ +3,000"],
+        index=0
     )
 
-# ── 備註等級
+# ── 備註等級（5台以上時此選項無效，自動套用備4加成）
 note_level = st.radio(
-    "⑤ 備註等級（8/14前現訂交達成台數）",
-    ["無", "備2：達2台（HR-V +2k｜CR-V e:HEV +3k）", "備3：達3台（HR-V +3k｜CR-V e:HEV +6k）",
-     "備4：達4台（HR-V +3k｜CR-V e:HEV +10k）", "備5：達5台（HR-V +3k｜CR-V e:HEV +10k）"],
-    horizontal=False
+    "⑤ 備註等級（8/14前現訂交台數，選5台以上時自動套用最高加成）",
+    ["無", "達2台（HR-V +2k｜CR-V e:HEV +3k）", "達3台（HR-V +3k｜CR-V e:HEV +6k）",
+     "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）"],
+    horizontal=False,
+    index=3
 )
 
 # ── 警告訊息
@@ -128,19 +131,25 @@ note1_map = {
     "無母數（一年以上）→ +3,000": 3000,
 }
 note1 = note1_map[note1_option]
-is_high = (tier == "3 台以上")
+is_high = (tier in ["3 台以上", "5 台以上"])
+is_5up  = (tier == "5 台以上")
 
-HRV_BONUS = {"無": 0, "備2：達2台（HR-V +2k｜CR-V e:HEV +3k）": 2000,
-             "備3：達3台（HR-V +3k｜CR-V e:HEV +6k）": 3000,
-             "備4：達4台（HR-V +3k｜CR-V e:HEV +10k）": 3000,
-             "備5：達5台（HR-V +3k｜CR-V e:HEV +10k）": 3000}
-CRV_BONUS = {"無": 0, "備2：達2台（HR-V +2k｜CR-V e:HEV +3k）": 3000,
-             "備3：達3台（HR-V +3k｜CR-V e:HEV +6k）": 6000,
-             "備4：達4台（HR-V +3k｜CR-V e:HEV +10k）": 10000,
-             "備5：達5台（HR-V +3k｜CR-V e:HEV +10k）": 10000}
+HRV_BONUS = {"無": 0,
+             "達2台（HR-V +2k｜CR-V e:HEV +3k）": 2000,
+             "達3台（HR-V +3k｜CR-V e:HEV +6k）": 3000,
+             "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）": 3000}
+CRV_BONUS = {"無": 0,
+             "達2台（HR-V +2k｜CR-V e:HEV +3k）": 3000,
+             "達3台（HR-V +3k｜CR-V e:HEV +6k）": 6000,
+             "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）": 10000}
 
-hrv_bonus = HRV_BONUS[note_level]
-crv_bonus = CRV_BONUS[note_level]
+# 5台以上自動套用備4加成（整月達成條件）
+if is_5up:
+    hrv_bonus = 3000
+    crv_bonus = 10000
+else:
+    hrv_bonus = HRV_BONUS[note_level]
+    crv_bonus = CRV_BONUS[note_level]
 
 # car_data: no_htw=True → CR-V不計HTW；hrv=True → 適用HR-V備註加成；crv=True → 適用CR-V備註加成；crv_p=True → 限庫存標示
 car_data = [
@@ -156,7 +165,8 @@ car_data = [
 ]
 
 totals, rows = [], []
-show_bonus = note_level != "無"
+show_bonus = (note_level != "無") or is_5up
+
 
 for car in car_data:
     neicu_base = car["nH"] if is_high else car["nL"]
