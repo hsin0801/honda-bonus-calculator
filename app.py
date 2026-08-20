@@ -82,29 +82,24 @@ with col1:
         horizontal=True,
         index=2
     )
-    period = st.radio(
-        "② 領牌時段（HTW 103期）",
-        ["8/3～8/14", "8/17～8/31"],
-        horizontal=True,
-        index=0
-    )
+
 
 with col2:
     total_sales = st.radio(
-        "③ TTL領牌台數（HTW，不含PRELUDE）",
+        "② TTL領牌台數（HTW，不含PRELUDE）",
         ["1台", "2台", "3台以上"],
         horizontal=True,
         index=2
     )
     note1_option = st.radio(
-        "④ 上月首年車體續保率（備註1）",
+        "③ 上月首年車體續保率（備註1）",
         ["60% 以上 → +7,000", "低於 60% → +3,000", "無母數（一年以下）→ +5,000", "無母數（一年以上）→ +3,000"],
         index=0
     )
 
 # ── 備註等級（5台以上時此選項無效，自動套用備4加成）
 note_level = st.radio(
-    "⑤ 備註等級（8/14前現訂交台數，選5台以上時自動套用最高加成）",
+    "④ 備註等級（8/14前現訂交台數，選5台以上時自動套用最高加成）",
     ["無", "達2台（HR-V +2k｜CR-V e:HEV +3k）", "達3台（HR-V +3k｜CR-V e:HEV +6k）",
      "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）"],
     horizontal=False,
@@ -112,17 +107,11 @@ note_level = st.radio(
 )
 
 # ── 警告訊息
-if period == "8/17～8/31":
-    st.markdown('<div class="danger-box">⚠️ 8/17～8/31 領牌期間 HTW 無獎勵金（103期規定）</div>', unsafe_allow_html=True)
-
 st.markdown('<div class="warn-box">⚠️ CR-V e:HEV P 限8月前庫存，需8/31前領牌</div>', unsafe_allow_html=True)
 
 # ── 計算邏輯
-HTW_TABLE = {
-    "8/3～8/14":  {"1台": 4000, "2台": 5000, "3台以上": 6000},
-    "8/17～8/31": {"1台": 0,    "2台": 0,    "3台以上": 0},
-}
-htw = HTW_TABLE[period][total_sales]
+HTW_TABLE = {"1台": 4000, "2台": 5000, "3台以上": 6000}
+htw = HTW_TABLE[total_sales]
 
 note1_map = {
     "60% 以上 → +7,000":         7000,
@@ -200,13 +189,12 @@ max_total = max(totals)
 max_car   = car_data[totals.index(max_total)]
 
 # ── 指標卡片
-htw_sub = "8/3~8/14" if period == "8/3～8/14" else "8/17後無獎勵"
 st.markdown(f"""
 <div class="metric-row">
   <div class="metric-card">
     <div class="m-label">HTW 每台單獎</div>
     <div class="m-value">${htw:,}</div>
-    <div class="m-sub">{htw_sub} × {total_sales}</div>
+    <div class="m-sub">{total_sales}</div>
   </div>
   <div class="metric-card">
     <div class="m-label">備註1 每台加給</div>
