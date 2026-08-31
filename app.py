@@ -92,22 +92,12 @@ with col2:
         index=0
     )
 
-# ── 備註等級
-col_n1, col_n2 = st.columns(2)
-with col_n1:
-    note_level = st.radio(
-        "⑤ 備註等級（8/14前現訂交台數）",
-        ["無", "達2台（HR-V +2k｜CR-V e:HEV +3k）", "達3台（HR-V +3k｜CR-V e:HEV +6k）",
-         "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）"],
-        horizontal=False,
-        index=3
-    )
-with col_n2:
-    note2_on = st.toggle(
-        "備2：9/14前完成ZR-V預接單\n→ CR-V e:HEV 內促強制套用4台以上（22,000）",
-        value=False,
-        help="9月份ZR-V完成1台(9/14前)預接單，CR-V e:HEV訂單車型內促直接以第4台內促計算"
-    )
+# ── 備2
+note2_on = st.toggle(
+    "⑤ 備2：9/14前完成ZR-V預接單 → CR-V e:HEV 內促強制套用4台以上（22,000）",
+    value=False,
+    help="9月份ZR-V完成1台(9/14前)預接單，CR-V e:HEV訂單車型內促直接以第4台內促計算"
+)
 
 if note2_on:
     st.markdown('<div class="warn-box">⚠️ 備2達成：CR-V e:HEV S 及 e:HEV P(Prestige) 內促強制套用 $22,000（4台以上）</div>', unsafe_allow_html=True)
@@ -130,17 +120,8 @@ note1 = note1_map[note1_option]
 tier_idx = {"1～2 台": 0, "3 台": 1, "4 台以上": 2}
 is_high  = tier_idx[tier]  # 0=低, 1=中, 2=高
 
-HRV_BONUS = {"無": 0,
-             "達2台（HR-V +2k｜CR-V e:HEV +3k）": 2000,
-             "達3台（HR-V +3k｜CR-V e:HEV +6k）": 3000,
-             "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）": 3000}
-CRV_BONUS = {"無": 0,
-             "達2台（HR-V +2k｜CR-V e:HEV +3k）": 3000,
-             "達3台（HR-V +3k｜CR-V e:HEV +6k）": 6000,
-             "達4台或5台以上（HR-V +3k｜CR-V e:HEV +10k）": 10000}
-
-hrv_bonus = HRV_BONUS[note_level]
-crv_bonus = CRV_BONUS[note_level]
+hrv_bonus = 0
+crv_bonus = 0
 
 # car_data:
 #   nL/nM/nH = 1~2台 / 3台 / 4台以上 內促
@@ -164,7 +145,7 @@ car_data = [
 ]
 
 totals, rows = [], []
-show_bonus = note_level != "無"
+show_bonus = False
 
 for car in car_data:
     neicu_val  = neicu(car)
