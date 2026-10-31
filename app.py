@@ -17,7 +17,12 @@ st.markdown("""
     padding: 20px 28px 16px 28px;
     border-radius: 14px;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
 }
+.honda-logo { height: 56px; width: auto; flex-shrink: 0; }
+@media (max-width: 540px) { .honda-logo { height: 42px; } .honda-header { gap: 12px; padding: 16px 18px; } }
 .honda-header h1 { color: white; font-size: 22px; font-weight: 700; margin: 0 0 4px 0; }
 .honda-header p  { color: rgba(255,255,255,0.8); font-size: 12px; margin: 0; }
 .metric-row { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
@@ -56,10 +61,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── 頂部標題 ─────────────────────────────────────────────
-st.markdown("""
+LOGO_B64 = "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"
+
+st.markdown(f"""
 <div class="honda-header">
-  <h1>🚗 2026年11月 Honda 銷售條件試算</h1>
-  <p>內促 ＋ SP銷售支援金 ＋ HTW銷售顧問獎勵（累點制）＋ 備註1車險獎勵　｜　領牌期間 2026/11/01–11/30</p>
+  <img class="honda-logo" src="data:image/png;base64,{LOGO_B64}" alt="Honda">
+  <div>
+    <h1>2026年11月 Honda 銷售條件試算</h1>
+    <p>內促 ＋ SP銷售支援金 ＋ HTW銷售顧問獎勵（累點制）＋ 備註1車險獎勵　｜　領牌期間 2026/11/01–11/30</p>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
