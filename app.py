@@ -89,33 +89,16 @@ with col1:
     )
 
 with col2:
-    htw_hev = st.number_input(
-        "② HTW e:HEV 台數（不含 PRELUDE，每台 2 點）",
-        min_value=0, value=4, step=1
-    )
-    htw_petrol = st.number_input(
-        "　 HTW 汽油/進口 台數（每台 1 點）",
-        min_value=0, value=0, step=1
+    htw_tier = st.radio(
+        "② HTW 累計點數級距",
+        ["累11點以上（$6,500/點）", "累8~10點（$4,500/點）", "累5~7點（$2,500/點）", "未達5點（不發放）"],
+        index=0
     )
 
-# ── HTW 累點計算 ──────────────────────────────────────────
-total_points   = htw_hev * 2 + htw_petrol
-total_htw_cars = htw_hev + htw_petrol  # 非PRELUDE台數
-
-if total_points >= 11:
-    htw_rate, htw_tier_label = 6500, "累11點以上 → 每點 $6,500"
-elif total_points >= 8:
-    htw_rate, htw_tier_label = 4500, "累8~10點 → 每點 $4,500"
-elif total_points >= 5:
-    htw_rate, htw_tier_label = 2500, "累5~7點 → 每點 $2,500"
-else:
-    htw_rate, htw_tier_label = 0, "未達5點（不發放）"
-
-total_htw   = total_points * htw_rate
-htw_per_car = round(total_htw / total_htw_cars) if total_htw_cars > 0 else 0
-
-if total_points > 0:
-    st.markdown(f'<div class="htw-box">📊 HTW 累計 <strong>{total_points} 點</strong>（e:HEV {htw_hev}台×2 ＋ 其他 {htw_petrol}台×1）　→　{htw_tier_label}　→　月總 HTW <strong>${total_htw:,}</strong>　→　均攤每台 <strong>${htw_per_car:,}</strong>（共{total_htw_cars}台）</div>', unsafe_allow_html=True)
+# ── HTW 累點計算（每台 = 該車型點數 × 每點金額）─────────────
+htw_rate = {"累11點以上（$6,500/點）":6500, "累8~10點（$4,500/點）":4500,
+            "累5~7點（$2,500/點）":2500, "未達5點（不發放）":0}[htw_tier]
+st.markdown(f'<div class="htw-box">📊 HTW 每點 <strong>${htw_rate:,}</strong>　｜　國產 e:HEV（HR-V e:HEV、FIT e:HEV、CR-V e:HEV）2點 = <strong>${htw_rate*2:,}</strong>/台　｜　進口（ZR-V、CIVIC）＆國產汽油（CR-V VTi-S/S、HR-V S、FIT Home）1點 = <strong>${htw_rate:,}</strong>/台　｜　PRELUDE 不計</div>', unsafe_allow_html=True)
 
 # ── 備註1 ────────────────────────────────────────────────
 note1_map = {
@@ -163,17 +146,17 @@ n2_base  = 2000 if note2_on else 0
 # note5=True    → CIVIC備注5預接獎勵+5,000
 # crv_p=True    → 備注3 CR-V e:HEV P加給適用
 car_data = [
-    {"section":"PRELUDE","model":"e:HEV 26'年",    "nL":10000,"nH":10000,"sp":0,    "sp_note":"無",              "is_prelude":True, "is_crv":False,"crv_p":False,"note5":False},
-    {"section":"CIVIC",  "model":"e:HEV 26'年",    "nL":0,    "nH":0,   "sp":0,    "sp_note":"無（上市發佈）",   "is_prelude":False,"is_crv":False,"crv_p":False,"note5":True},
-    {"section":"ZR-V",   "model":"e:HEV 26'年",    "nL":10000,"nH":15000,"sp":6000,"sp_note":"B案",             "is_prelude":False,"is_crv":False,"crv_p":False,"note5":False},
-    {"section":"HR-V",   "model":"S",              "nL":19000,"nH":21000,"sp":15000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"note5":False},
-    {"section":"HR-V",   "model":"e:HEV S",        "nL":23000,"nH":25000,"sp":17000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"note5":False},
-    {"section":"HR-V",   "model":"e:HEV P",        "nL":25000,"nH":27000,"sp":27000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"note5":False},
-    {"section":"FIT",    "model":"Home",            "nL":37000,"nH":37000,"sp":10000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"note5":False},
-    {"section":"FIT",    "model":"e:HEV",           "nL":41000,"nH":41000,"sp":20000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"note5":False},
-    {"section":"CR-V",   "model":"e:HEV S",        "nL":22000,"nH":24000,"sp":27000,"sp_note":"D案",            "is_prelude":False,"is_crv":True, "crv_p":False,"note5":False},
-    {"section":"CR-V",   "model":"e:HEV P",        "nL":22000,"nH":24000,"sp":19000,"sp_note":"C案",            "is_prelude":False,"is_crv":True, "crv_p":True, "note5":False},
-    {"section":"CR-V",   "model":"VTi-S / S",      "nL":15000,"nH":15000,"sp":5000, "sp_note":"A案",            "is_prelude":False,"is_crv":True, "crv_p":False,"note5":False},
+    {"section":"PRELUDE","model":"e:HEV 26'年",    "nL":10000,"nH":10000,"sp":0,    "sp_note":"無",              "is_prelude":True, "is_crv":False,"crv_p":False,"pts":0,"note5":False},
+    {"section":"CIVIC",  "model":"e:HEV 26'年",    "nL":0,    "nH":0,   "sp":0,    "sp_note":"無（上市發佈）",   "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":True},
+    {"section":"ZR-V",   "model":"e:HEV 26'年",    "nL":10000,"nH":15000,"sp":6000,"sp_note":"B案",             "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
+    {"section":"HR-V",   "model":"S",              "nL":19000,"nH":21000,"sp":15000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
+    {"section":"HR-V",   "model":"e:HEV S",        "nL":23000,"nH":25000,"sp":17000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
+    {"section":"HR-V",   "model":"e:HEV P",        "nL":25000,"nH":27000,"sp":27000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
+    {"section":"FIT",    "model":"Home",            "nL":37000,"nH":37000,"sp":10000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
+    {"section":"FIT",    "model":"e:HEV",           "nL":41000,"nH":41000,"sp":20000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
+    {"section":"CR-V",   "model":"e:HEV S",        "nL":22000,"nH":24000,"sp":27000,"sp_note":"D案",            "is_prelude":False,"is_crv":True, "crv_p":False,"pts":2,"note5":False},
+    {"section":"CR-V",   "model":"e:HEV P",        "nL":22000,"nH":24000,"sp":19000,"sp_note":"C案",            "is_prelude":False,"is_crv":True, "crv_p":True, "pts":2,"note5":False},
+    {"section":"CR-V",   "model":"VTi-S / S",      "nL":15000,"nH":15000,"sp":5000, "sp_note":"A案",            "is_prelude":False,"is_crv":True, "crv_p":False,"pts":1,"note5":False},
 ]
 
 # ── 計算 ─────────────────────────────────────────────────
@@ -181,7 +164,7 @@ totals, rows = [], []
 for car in car_data:
     neicu     = car["nH"] if is_high else car["nL"]
     sp        = car["sp"]
-    htw_val   = 0 if car["is_prelude"] else htw_per_car
+    htw_val   = car["pts"] * htw_rate
     n1        = note1
     n2        = n2_base + (3000 if (note2_on and note2_crv_extra and car["is_crv"]) else 0)
     n3        = note3_crv_p if car["crv_p"] else 0
@@ -198,7 +181,7 @@ for car in car_data:
     totals.append(total)
 
     sp_display  = f"${sp:,}（{car['sp_note']}）" if sp > 0 else f"$0（{car['sp_note']}）"
-    htw_display = "—（PRELUDE不計）" if car["is_prelude"] else f"${htw_val:,}"
+    htw_display = "—（PRELUDE不計）" if car["is_prelude"] else f"${htw_val:,}（{car['pts']}點）"
     n2_display  = f"+${n2:,}" if n2 > 0 else "—"
     n3_display  = f"+${n3:,}" if n3 > 0 else ""
     n5_display  = "+$5,000（備5）" if n5 > 0 else ""
@@ -208,7 +191,7 @@ for car in car_data:
         "車型":            car["model"],
         "內促":            neicu_label,
         "SP最高現金":      sp_display,
-        "HTW均攤":         htw_display,
+        "HTW":         htw_display,
         "備註1":           f"+${n1:,}",
         "備註2":           n2_display,
         "每台合計（最高）": ("待公佈+" if car["note5"] else "") + f"${total:,}",
@@ -222,14 +205,14 @@ max_car   = car_data[totals.index(max_total)]
 st.markdown(f"""
 <div class="metric-row">
   <div class="metric-card htw">
-    <div class="m-label">HTW 月總額</div>
-    <div class="m-value">${total_htw:,}</div>
-    <div class="m-sub">{total_points}點 × ${htw_rate:,}</div>
+    <div class="m-label">HTW e:HEV（2點）</div>
+    <div class="m-value">${htw_rate*2:,}</div>
+    <div class="m-sub">每點 ${htw_rate:,}</div>
   </div>
   <div class="metric-card htw">
-    <div class="m-label">HTW 均攤/台</div>
-    <div class="m-value">${htw_per_car:,}</div>
-    <div class="m-sub">÷ {total_htw_cars}台</div>
+    <div class="m-label">HTW 汽油/進口（1點）</div>
+    <div class="m-value">${htw_rate:,}</div>
+    <div class="m-sub">每點 ${htw_rate:,}</div>
   </div>
   <div class="metric-card">
     <div class="m-label">備註1 每台加給</div>
@@ -262,7 +245,7 @@ def style_table(df_in):
 
 st.dataframe(
     style_table(df),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     height=430
 )
@@ -271,7 +254,7 @@ st.dataframe(
 with st.expander("📋 查看各車型詳細計算式"):
     for car, total in zip(car_data, totals):
         neicu   = car["nH"] if is_high else car["nL"]
-        htw_val = 0 if car["is_prelude"] else htw_per_car
+        htw_val = car["pts"] * htw_rate
         n2      = n2_base + (3000 if (note2_on and note2_crv_extra and car["is_crv"]) else 0)
         n3      = note3_crv_p if car["crv_p"] else 0
         n5      = 5000 if car["note5"] else 0
@@ -279,7 +262,7 @@ with st.expander("📋 查看各車型詳細計算式"):
         bold    = "700" if total == max_total else "400"
 
         if car["note5"]:
-            formula = f"內促 待公佈 ＋ SP ${car['sp']:,} ＋ HTW均攤 ${htw_val:,} ＋ 備1 ${note1:,} ＋ 備2 ${n2:,} ＋ 備5 $5,000 ＝ 待公佈+${total:,}"
+            formula = f"內促 待公佈 ＋ SP ${car['sp']:,} ＋ HTW ${htw_val:,} ＋ 備1 ${note1:,} ＋ 備2 ${n2:,} ＋ 備5 $5,000 ＝ 待公佈+${total:,}"
         else:
             parts = [f"內促 ${neicu:,}", f"SP ${car['sp']:,}", f"HTW ${htw_val:,}", f"備1 ${note1:,}"]
             if n2: parts.append(f"備2 ${n2:,}")
@@ -294,7 +277,7 @@ with st.expander("📋 查看各車型詳細計算式"):
         )
 
 st.markdown("---")
-st.caption("※ HTW 為累點制：e:HEV=2點/台、汽油/進口=1點/台（PRELUDE不計）。累5-7點→$2,500/點；累8-10點→$4,500/點；累11點以上→$6,500/點。")
+st.caption("※ HTW 累點制：國產 e:HEV（HR-V e:HEV S/P、FIT e:HEV、CR-V e:HEV S/P）2點；進口（ZR-V、CIVIC）及國產汽油（CR-V VTi-S/S、HR-V S、FIT Home）1點；PRELUDE 不計。累5-7點 $2,500/點、累8-10點 $4,500/點、累11點以上 $6,500/點。")
 st.caption("※ SP 取各方案最高現金選項。CIVIC/PRELUDE SP本月無現金（延保為加價購）。CR-V VTi-S/S A案需加選延長保固。")
 st.caption("※ 備註1 取2026年9月成績。ZR-V 另有乙式保險+$3,000獎勵（未含於本表）。")
 st.caption("※ 備註2：現訂交庫存車每台+2,000；11月底清空11月前庫存 → CR-V 再+3,000。")
