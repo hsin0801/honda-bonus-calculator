@@ -91,13 +91,13 @@ with col1:
 with col2:
     htw_tier = st.radio(
         "② HTW 累計點數級距",
-        ["累11點以上（$6,500/點）", "累8~10點（$4,500/點）", "累5~7點（$2,500/點）", "未達5點（不發放）"],
+        ["累9點以上（$5,500/點）", "累7~8點（$4,500/點）", "累5~6點（$3,500/點）", "累3~4點（$2,500/點）", "未達3點（不發放）"],
         index=0
     )
 
 # ── HTW 累點計算（每台 = 該車型點數 × 每點金額）─────────────
-htw_rate = {"累11點以上（$6,500/點）":6500, "累8~10點（$4,500/點）":4500,
-            "累5~7點（$2,500/點）":2500, "未達5點（不發放）":0}[htw_tier]
+htw_rate = {"累9點以上（$5,500/點）":5500, "累7~8點（$4,500/點）":4500, "累5~6點（$3,500/點）":3500,
+            "累3~4點（$2,500/點）":2500, "未達3點（不發放）":0}[htw_tier]
 st.markdown(f'<div class="htw-box">📊 HTW 每點 <strong>${htw_rate:,}</strong>　｜　國產 e:HEV（HR-V e:HEV、FIT e:HEV、CR-V e:HEV）2點 = <strong>${htw_rate*2:,}</strong>/台　｜　進口（ZR-V、CIVIC）＆國產汽油（CR-V VTi-S/S、HR-V S、FIT Home）1點 = <strong>${htw_rate:,}</strong>/台　｜　PRELUDE 不計</div>', unsafe_allow_html=True)
 
 # ── 備註1 ────────────────────────────────────────────────
@@ -150,10 +150,10 @@ car_data = [
     {"section":"CIVIC",  "model":"e:HEV 26'年",    "nL":0,    "nH":0,   "sp":0,    "sp_note":"無（上市發佈）",   "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":True},
     {"section":"ZR-V",   "model":"e:HEV 26'年",    "nL":10000,"nH":15000,"sp":6000,"sp_note":"B案",             "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
     {"section":"HR-V",   "model":"S",              "nL":19000,"nH":21000,"sp":15000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
-    {"section":"HR-V",   "model":"e:HEV S",        "nL":23000,"nH":25000,"sp":17000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
-    {"section":"HR-V",   "model":"e:HEV P",        "nL":25000,"nH":27000,"sp":27000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
+    {"section":"HR-V",   "model":"e:HEV S",        "nL":23000,"nH":25000,"sp":20000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
+    {"section":"HR-V",   "model":"e:HEV P",        "nL":25000,"nH":27000,"sp":30000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
     {"section":"FIT",    "model":"Home",            "nL":37000,"nH":37000,"sp":10000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
-    {"section":"FIT",    "model":"e:HEV",           "nL":41000,"nH":41000,"sp":20000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
+    {"section":"FIT",    "model":"e:HEV",           "nL":41000,"nH":41000,"sp":23000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
     {"section":"CR-V",   "model":"e:HEV S",        "nL":22000,"nH":24000,"sp":27000,"sp_note":"D案",            "is_prelude":False,"is_crv":True, "crv_p":True,"pts":2,"note5":False},
     {"section":"CR-V",   "model":"e:HEV P",        "nL":22000,"nH":24000,"sp":19000,"sp_note":"C案",            "is_prelude":False,"is_crv":True, "crv_p":True, "pts":2,"note5":False},
     {"section":"CR-V",   "model":"VTi-S / S",      "nL":15000,"nH":15000,"sp":5000, "sp_note":"A案",            "is_prelude":False,"is_crv":True, "crv_p":False,"pts":1,"note5":False},
@@ -277,7 +277,7 @@ with st.expander("📋 查看各車型詳細計算式"):
         )
 
 st.markdown("---")
-st.caption("※ HTW 累點制：國產 e:HEV（HR-V e:HEV S/P、FIT e:HEV、CR-V e:HEV S/P）2點；進口（ZR-V、CIVIC）及國產汽油（CR-V VTi-S/S、HR-V S、FIT Home）1點；PRELUDE 不計。累5-7點 $2,500/點、累8-10點 $4,500/點、累11點以上 $6,500/點。")
+st.caption("※ HTW 累點制：國產 e:HEV（HR-V e:HEV S/P、FIT e:HEV、CR-V e:HEV S/P）2點；進口（ZR-V、CIVIC）及國產汽油（CR-V VTi-S/S、HR-V S、FIT Home）1點；PRELUDE 不計。（11/4 更新）累3-4點 $2,500/點、累5-6點 $3,500/點、累7-8點 $4,500/點、累9點以上 $5,500/點。")
 st.caption("※ SP 取各方案最高現金選項。CIVIC/PRELUDE SP本月無現金（延保為加價購）。CR-V VTi-S/S A案需加選延長保固。")
 st.caption("※ 備註1 取2026年9月成績。ZR-V 另有乙式保險+$3,000獎勵（未含於本表）。")
 st.caption("※ 備註2：現訂交庫存車每台+2,000；11月底清空11月前庫存 → CR-V 再+3,000。")
