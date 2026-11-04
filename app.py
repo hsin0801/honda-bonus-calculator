@@ -125,7 +125,7 @@ with tg2:
     ) if note2_on else False
 
 note3_option = st.select_slider(
-    "⑤ 備註3：本月現訂交台數（CR-V e:HEV P 加給）",
+    "⑤ 備註3：本月現訂交台數（CR-V e:HEV S/P 加給）",
     options=["未達5台（無加給）", "5台（+2,000/台）", "6台（+5,000/台）", "7台以上（+8,000/台）"],
     value="7台以上（+8,000/台）"
 )
@@ -154,7 +154,7 @@ car_data = [
     {"section":"HR-V",   "model":"e:HEV P",        "nL":25000,"nH":27000,"sp":27000,"sp_note":"F案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
     {"section":"FIT",    "model":"Home",            "nL":37000,"nH":37000,"sp":10000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":1,"note5":False},
     {"section":"FIT",    "model":"e:HEV",           "nL":41000,"nH":41000,"sp":20000,"sp_note":"D案",            "is_prelude":False,"is_crv":False,"crv_p":False,"pts":2,"note5":False},
-    {"section":"CR-V",   "model":"e:HEV S",        "nL":22000,"nH":24000,"sp":27000,"sp_note":"D案",            "is_prelude":False,"is_crv":True, "crv_p":False,"pts":2,"note5":False},
+    {"section":"CR-V",   "model":"e:HEV S",        "nL":22000,"nH":24000,"sp":27000,"sp_note":"D案",            "is_prelude":False,"is_crv":True, "crv_p":True,"pts":2,"note5":False},
     {"section":"CR-V",   "model":"e:HEV P",        "nL":22000,"nH":24000,"sp":19000,"sp_note":"C案",            "is_prelude":False,"is_crv":True, "crv_p":True, "pts":2,"note5":False},
     {"section":"CR-V",   "model":"VTi-S / S",      "nL":15000,"nH":15000,"sp":5000, "sp_note":"A案",            "is_prelude":False,"is_crv":True, "crv_p":False,"pts":1,"note5":False},
 ]
@@ -281,6 +281,6 @@ st.caption("※ HTW 累點制：國產 e:HEV（HR-V e:HEV S/P、FIT e:HEV、CR-V
 st.caption("※ SP 取各方案最高現金選項。CIVIC/PRELUDE SP本月無現金（延保為加價購）。CR-V VTi-S/S A案需加選延長保固。")
 st.caption("※ 備註1 取2026年9月成績。ZR-V 另有乙式保險+$3,000獎勵（未含於本表）。")
 st.caption("※ 備註2：現訂交庫存車每台+2,000；11月底清空11月前庫存 → CR-V 再+3,000。")
-st.caption("※ 備註3：現訂交5台+→CR-V e:HEV P每台+2,000；6台+→+5,000；7台+→+8,000（取最高適用）。")
+st.caption("※ 備註3：現訂交5台+→CR-V e:HEV S/P每台+2,000；6台+→+5,000；7台+→+8,000（取最高適用）。")
 st.caption("※ 備註5：CIVIC 上市前準備預接獎勵每台+5,000（需12/31前領牌），內促待上市公佈。")
 st.caption("※ 本試算表僅供參考，實際獎金依 Honda Taiwan 官方公告為準。")
